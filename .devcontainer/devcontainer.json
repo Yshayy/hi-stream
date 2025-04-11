@@ -1,0 +1,11 @@
+{
+  "name": "Node.js 22",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "postCreateCommand": "npm install",
+  "tasks": {
+    "test": "npm run test:ci"
+  }
+}

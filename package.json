@@ -1,0 +1,29 @@
+{
+  "name": "hi-stream",
+  "version": "1.0.0",
+  "description": "A TypeScript library for higher-order utility functions for web streams' readable streams.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "test:ci": "vitest --run"
+  },
+  "keywords": [
+    "webstreams",
+    "readable streams",
+    "utility functions",
+    "typescript",
+    "rx",
+    "ix"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1",
+    "web-streams-polyfill": "^3.1.1",
+    "@types/node": "^22.14.0",
+    "tsup": "^8.4.0"
+  }
+}
