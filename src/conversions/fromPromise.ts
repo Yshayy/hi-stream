@@ -8,8 +8,12 @@ export function fromPromise<T>(promise: Promise<T>): ReadableStream<T> {
           controller.enqueue(value);
           controller.close();
         })
-        .catch((err: any) => {
-          controller.error(err);
+        .catch((err: unknown) => {
+          if (err instanceof Error) {
+            controller.error(err);
+          } else {
+            controller.error(new Error(String(err)));
+          }
         });
     }
   });
@@ -36,7 +40,7 @@ if (import.meta.vitest) {
       try {
         await reader.read();
       } catch (err) {
-        expect(err.message).toBe('Test error');
+        expect(err instanceof Error ? err.message : String(err)).toBe('Test error');
       }
     });
   });

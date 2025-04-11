@@ -13,6 +13,9 @@ export default defineConfig({
   env: {
     NODE_ENV: 'production'
   },
+  define: {
+    'import.meta.vitest': 'undefined',
+  },
   esbuildOptions(options) {
     options.define = {
       ...options.define,
