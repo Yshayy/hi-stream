@@ -23,7 +23,7 @@ Here are some examples of how to use the provided operators and utilities:
 ### Importing the library
 
 ```ts
-import { map, flatMap, scan, fromPromise, toPromise, curry, pipe } from 'hi-stream';
+import { map, flatMap, scan, filter, skip, skipWhile, skipUntil, take, takeWhile, takeUntil, zip, pairwise, fromPromise, toPromise, curry, pipe } from 'hi-stream';
 ```
 
 ### Using `map` operator
@@ -83,6 +83,201 @@ const transformStream = scan((acc: number, x: number) => acc + x, 0);
 const reader = transformStream(readableStream).getReader();
 reader.read().then(({ value }) => {
   console.log(value); // 1
+});
+```
+
+### Using `filter` operator
+
+```ts
+const readableStream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(1);
+    controller.enqueue(2);
+    controller.enqueue(3);
+    controller.close();
+  }
+});
+
+const transformStream = filter((x: number) => x % 2 === 0);
+
+const reader = transformStream(readableStream).getReader();
+reader.read().then(({ value }) => {
+  console.log(value); // 2
+});
+```
+
+### Using `skip` operator
+
+```ts
+const readableStream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(1);
+    controller.enqueue(2);
+    controller.enqueue(3);
+    controller.enqueue(4);
+    controller.close();
+  }
+});
+
+const transformStream = skip(2);
+
+const reader = transformStream(readableStream).getReader();
+reader.read().then(({ value }) => {
+  console.log(value); // 3
+});
+```
+
+### Using `skipWhile` operator
+
+```ts
+const readableStream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(1);
+    controller.enqueue(2);
+    controller.enqueue(3);
+    controller.enqueue(4);
+    controller.close();
+  }
+});
+
+const transformStream = skipWhile((x: number) => x < 3);
+
+const reader = transformStream(readableStream).getReader();
+reader.read().then(({ value }) => {
+  console.log(value); // 3
+});
+```
+
+### Using `skipUntil` operator
+
+```ts
+const readableStream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(1);
+    controller.enqueue(2);
+    controller.enqueue(3);
+    controller.enqueue(4);
+    controller.close();
+  }
+});
+
+const transformStream = skipUntil((x: number) => x >= 3);
+
+const reader = transformStream(readableStream).getReader();
+reader.read().then(({ value }) => {
+  console.log(value); // 3
+});
+```
+
+### Using `take` operator
+
+```ts
+const readableStream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(1);
+    controller.enqueue(2);
+    controller.enqueue(3);
+    controller.enqueue(4);
+    controller.close();
+  }
+});
+
+const transformStream = take(2);
+
+const reader = transformStream(readableStream).getReader();
+reader.read().then(({ value }) => {
+  console.log(value); // 1
+});
+```
+
+### Using `takeWhile` operator
+
+```ts
+const readableStream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(1);
+    controller.enqueue(2);
+    controller.enqueue(3);
+    controller.enqueue(4);
+    controller.close();
+  }
+});
+
+const transformStream = takeWhile((x: number) => x < 3);
+
+const reader = transformStream(readableStream).getReader();
+reader.read().then(({ value }) => {
+  console.log(value); // 1
+});
+```
+
+### Using `takeUntil` operator
+
+```ts
+const readableStream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(1);
+    controller.enqueue(2);
+    controller.enqueue(3);
+    controller.enqueue(4);
+    controller.close();
+  }
+});
+
+const transformStream = takeUntil((x: number) => x >= 3);
+
+const reader = transformStream(readableStream).getReader();
+reader.read().then(({ value }) => {
+  console.log(value); // 1
+});
+```
+
+### Using `zip` operator
+
+```ts
+const readableStream1 = new ReadableStream({
+  start(controller) {
+    controller.enqueue(1);
+    controller.enqueue(2);
+    controller.enqueue(3);
+    controller.close();
+  }
+});
+
+const readableStream2 = new ReadableStream({
+  start(controller) {
+    controller.enqueue('a');
+    controller.enqueue('b');
+    controller.enqueue('c');
+    controller.close();
+  }
+});
+
+const transformStream = zip(readableStream2);
+
+const reader = transformStream(readableStream1).getReader();
+reader.read().then(({ value }) => {
+  console.log(value); // [1, 'a']
+});
+```
+
+### Using `pairwise` operator
+
+```ts
+const readableStream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(1);
+    controller.enqueue(2);
+    controller.enqueue(3);
+    controller.close();
+  }
+});
+
+const transformStream = pairwise();
+
+const reader = transformStream(readableStream).getReader();
+reader.read().then(({ value }) => {
+  console.log(value); // [1, 2]
 });
 ```
 
