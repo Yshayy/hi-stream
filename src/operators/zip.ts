@@ -7,7 +7,7 @@ import { curry } from '../utils/curry';
  * @returns A function that takes a readable stream and returns a new readable stream with the combined chunks.
  */
 export function zip<T>(...streams: ReadableStream<T>[]): (readableStream: ReadableStream<T>) => ReadableStream<T[]> {
-  return curry(zipStreams)(...streams);
+  return curry(zipStreams)(streams);
 }
 
 /**
@@ -18,7 +18,6 @@ export function zip<T>(...streams: ReadableStream<T>[]): (readableStream: Readab
  */
 export function zipStreams<T>(streams: ReadableStream<T>[], readableStream: ReadableStream<T>): ReadableStream<T[]> {
   const readers = streams.map(stream => stream.getReader());
-  const mainReader = readableStream.getReader();
 
   const transformStream = new TransformStream({
     async transform(chunk, controller) {
