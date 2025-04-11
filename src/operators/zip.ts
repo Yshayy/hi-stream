@@ -1,4 +1,3 @@
-import { ReadableStream, TransformStream } from '../core';
 import { curry } from '../utils/curry';
 
 /**

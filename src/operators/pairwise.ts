@@ -1,5 +1,3 @@
-import { TransformStream } from '../core';
-
 /**
  * Emits pairs of consecutive chunks from the readable stream.
  * @returns A function that takes a readable stream and returns a new readable stream with pairs of consecutive chunks.
