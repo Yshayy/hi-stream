@@ -1,5 +1,3 @@
-import { ReadableStream } from 'web-streams-polyfill/ponyfill';
-
 export function toPromise<T>(readableStream: ReadableStream<T>): Promise<T[]> {
   return new Promise((resolve, reject) => {
     const reader = readableStream.getReader();

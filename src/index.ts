@@ -14,3 +14,4 @@ export * from './operators/takeWhile';
 export * from './operators/takeUntil';
 export * from './operators/zip';
 export * from './operators/pairwise';
+export * from './conversions/from';

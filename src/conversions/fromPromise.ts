@@ -1,5 +1,3 @@
-import { ReadableStream } from 'web-streams-polyfill/ponyfill';
-
 export function fromPromise<T>(promise: Promise<T>): ReadableStream<T> {
   return new ReadableStream({
     start(controller) {

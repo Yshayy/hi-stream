@@ -1,4 +1,6 @@
 import { curry } from '../utils/curry';
+import { from } from '../conversions/from';
+import { toPromise } from '../conversions/toPromise';
 
 /**
  * Skips a specified number of chunks in the readable stream.
@@ -37,26 +39,9 @@ if (import.meta.vitest) {
 
   describe('skip', () => {
     it('should skip the specified number of chunks', async () => {
-      const readableStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(1);
-          controller.enqueue(2);
-          controller.enqueue(3);
-          controller.enqueue(4);
-          controller.close();
-        }
-      });
-
-      const transformStream = pipe(readableStream, skip(2));
-
-      const reader = transformStream.getReader();
-      const result = [];
-      let readResult;
-      while (!(readResult = await reader.read()).done) {
-        result.push(readResult.value);
-      }
-
-      expect(result).toEqual([3, 4]);
+      const stream = from([1, 2, 3, 4]);
+      const resultStream = pipe(stream, skip(2));
+      expect(await toPromise(resultStream)).toEqual([3, 4]);
     });
   });
 }

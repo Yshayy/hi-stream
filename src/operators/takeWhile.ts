@@ -1,4 +1,6 @@
 import { curry } from '../utils/curry';
+import { from } from '../conversions/from';
+import { toPromise } from '../conversions/toPromise';
 
 /**
  * Takes chunks from the readable stream while a predicate function is true.
@@ -38,26 +40,9 @@ if (import.meta.vitest) {
 
   describe('takeWhile', () => {
     it('should take chunks while the predicate is true', async () => {
-      const readableStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(1);
-          controller.enqueue(2);
-          controller.enqueue(3);
-          controller.enqueue(4);
-          controller.close();
-        }
-      });
-
-      const transformStream = pipe(readableStream, takeWhile((x: number) => x < 3));
-
-      const reader = transformStream.getReader();
-      const result = [];
-      let readResult;
-      while (!(readResult = await reader.read()).done) {
-        result.push(readResult.value);
-      }
-
-      expect(result).toEqual([1, 2]);
+      const stream = from([1, 2, 3, 4]);
+      const resultStream = pipe(stream, takeWhile((x: number) => x < 3));
+      expect(await toPromise(resultStream)).toEqual([1, 2]);
     });
   });
 }
