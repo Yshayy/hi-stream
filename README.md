@@ -122,6 +122,46 @@ Stream finished.
 ## Operators
 
 <!-- OPERATORS_BEGIN -->
+### buffer
+
+**Signature:**
+```ts
+export function buffer<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T[]>;
+```
+
+**Description:**
+Buffers chunks in the readable stream based on a predicate function.
+
+<details><summary>Example</summary>
+
+```ts
+const stream = from([1, 2, 3, 4, 5]);
+const resultStream = pipe(stream, buffer(x => x % 2 === 0));
+await toPromise(resultStream); // Output: [[1, 2], [3, 4], [5]]
+```
+
+</details>
+
+### bufferCount
+
+**Signature:**
+```ts
+export function bufferCount<T>(count: number): (readableStream: ReadableStream<T>) => ReadableStream<T[]>;
+```
+
+**Description:**
+Buffers a specified number of items in the readable stream.
+
+<details><summary>Example</summary>
+
+```ts
+const stream = from([1, 2, 3, 4, 5]);
+const resultStream = pipe(stream, bufferCount(2));
+await toPromise(resultStream); // Output: [[1, 2], [3, 4], [5]]
+```
+
+</details>
+
 ### filter
 
 **Signature:**
