@@ -1,4 +1,6 @@
 import { curry } from '../utils/curry';
+import { from } from '../conversions/from';
+import { toPromise } from '../conversions/toPromise';
 
 /**
  * Applies a given function to each chunk in the readable stream.
