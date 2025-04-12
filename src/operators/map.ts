@@ -8,10 +8,9 @@ import { toPromise } from '../conversions/toPromise';
  * @returns A function that takes a readable stream and returns a new readable stream with the transformed chunks.
  * 
  * @example
- * ```ts
  * const stream = from([1,2,3])
  * await pipe(stream, map(x=>x*2), toPromise) // Output: [2,4,6]
- * ```
+ * 
  */
 export function map<T, R>(fn: (chunk: T) => R): (readableStream: ReadableStream<T>) => ReadableStream<R> {
   return curry(mapStream)(fn);

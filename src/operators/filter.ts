@@ -8,10 +8,9 @@ import { toPromise } from '../conversions/toPromise';
  * @returns A function that takes a readable stream and returns a new readable stream with the filtered chunks.
  * 
  * @example
- * ```ts
  * const stream = from([1,2,3])
  * await pipe(stream, filter(x=>x%2===0), toPromise) // Output: [2]
- * ```
+ * 
  */
 export function filter<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T> {
   return curry(filterStream)(predicate);

@@ -8,10 +8,9 @@ import { toPromise } from '../conversions/toPromise';
  * @returns A function that takes a readable stream and returns a new readable stream with the transformed and flattened chunks.
  * 
  * @example
- * ```ts
  * const stream = from([1,2,3])
  * await pipe(stream, flatMap(x=>[x,x*2]), toPromise) // Output: [1,2,2,4,3,6]
- * ```
+ * 
  */
 export function flatMap<T, R>(fn: (chunk: T) => R[]): (readableStream: ReadableStream<T>) => ReadableStream<R> {
   return curry(flatMapStream)(fn);

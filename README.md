@@ -40,10 +40,8 @@ Filters chunks in the readable stream based on a predicate function.
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3])
 await pipe(stream, filter(x=>x%2===0), toPromise) // Output: [2]
-```
 ```
 
 </details>
@@ -61,10 +59,8 @@ Applies a given function to each chunk in the readable stream and flattens the r
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3])
 await pipe(stream, flatMap(x=>[x,x*2]), toPromise) // Output: [1,2,2,4,3,6]
-```
 ```
 
 </details>
@@ -82,10 +78,8 @@ Applies a given function to each chunk in the readable stream.
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3])
 await pipe(stream, map(x=>x*2), toPromise) // Output: [2,4,6]
-```
 ```
 
 </details>
@@ -103,10 +97,8 @@ Emits pairs of consecutive chunks from the readable stream.
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3])
 await pipe(stream, pairwise(), toPromise) // Output: [[1,2],[2,3]]
-```
 ```
 
 </details>
@@ -124,10 +116,8 @@ Applies a given function to each chunk in the readable stream, accumulating the 
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3])
 await pipe(stream, scan((acc,x)=>acc+x,0), toPromise) // Output: [1,3,6]
-```
 ```
 
 </details>
@@ -145,10 +135,8 @@ Skips a specified number of chunks in the readable stream.
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3,4])
 await pipe(stream, skip(2), toPromise) // Output: [3,4]
-```
 ```
 
 </details>
@@ -166,10 +154,8 @@ Skips chunks in the readable stream until a predicate function is true.
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3,4])
 await pipe(stream, skipUntil(x=>x>=3), toPromise) // Output: [3,4]
-```
 ```
 
 </details>
@@ -187,10 +173,8 @@ Skips chunks in the readable stream while a predicate function is true.
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3,4])
 await pipe(stream, skipWhile(x=>x<3), toPromise) // Output: [3,4]
-```
 ```
 
 </details>
@@ -208,10 +192,8 @@ Takes a specified number of chunks from the readable stream.
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3,4])
 await pipe(stream, take(2), toPromise) // Output: [1,2]
-```
 ```
 
 </details>
@@ -229,10 +211,8 @@ Takes chunks from the readable stream until a predicate function is true.
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream = from([1,2,3,4])
 await pipe(stream, takeUntil(x=>x>=3), toPromise) // Output: [1,2]
-```
 ```
 
 </details>

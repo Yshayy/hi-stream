@@ -8,10 +8,9 @@ import { toPromise } from '../conversions/toPromise';
  * @returns A function that takes a readable stream and returns a new readable stream with the skipped chunks.
  * 
  * @example
- * ```ts
  * const stream = from([1,2,3,4])
  * await pipe(stream, skipWhile(x=>x<3), toPromise) // Output: [3,4]
- * ```
+ * 
  */
 export function skipWhile<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T> {
   return curry(skipWhileStream)(predicate);
