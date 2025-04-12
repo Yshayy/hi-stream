@@ -1,45 +1,93 @@
 # hi-stream 🚀
 
-Welcome to **hi-stream**! This library provides higher-order utility functions for working with web streams' readable streams. It offers an Rx/Ix-like API with operators such as `map`, `flatMap`, `scan`, and more. The library leverages transform streams internally for operators and integrates with promises and async iterables. It supports tacit style programming by currying all operators and provides utilities for currying and piping functions.
+**Supercharge your Web Streams with familiar, powerful operators!**
 
-## Benefits of Using This Library 🌟
+Welcome to **hi-stream**! If you're working with [Web Streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API) (specifically `ReadableStream`), `hi-stream` makes your life easier. It provides a rich set of **higher-order utility functions** inspired by reactive programming libraries like [RxJS](https://rxjs.dev/) and [IxJS](https://github.com/ReactiveX/IxJS), allowing you to manipulate streams with operators like `map`, `filter`, `flatMap`, `scan`, and many more.
 
-- **Target Modern Environments**: This library is designed to work seamlessly with modern environments such as WinterCG, Node.js, Deno, Bun, and browsers.
-- **Native Support for Async Iterators**: Webstreams work natively with async iterators and `for...await` syntax, making it easy and idiomatic to consume streams.
-- **Ease of Use with LLM Libraries**: This library is easy to work with LLM libraries that have adopted webstreams for representing AI streams.
+`hi-stream` embraces modern JavaScript features, leveraging native `TransformStream` for performance and integrating seamlessly with `Promise`s and `async/await` iteration. It's designed with a functional approach, offering curried operators and utilities like `pipe` for elegant, point-free style programming.
 
-## Installation 📦
+## ✨ Why Choose hi-stream?
 
-To install the library, use npm or yarn:
+* **Simplified Stream Manipulation:** Forget manual stream plumbing. Use intuitive operators you might already know from libraries like RxJS/IxJS.
+* **Modern & Compatible:** Built for today's JavaScript environments:
+    * [Node.js](https://nodejs.org/)
+    * [Deno](https://deno.land/)
+    * [Bun](https://bun.sh/)
+    * Browsers
+    * [WinterCG](https://wintercg.org/) runtimes (Cloudflare Workers, etc.)
+* **Async Native:** Works perfectly with `async function*` and the `for await...of` loop, the standard way to consume Web Streams.
+* **Performant:** Utilizes the browser's (or runtime's) built-in `TransformStream` mechanism for efficient data processing.
+* **Functional Programming Friendly:** All operators are automatically curried, enabling easy composition using functions like `pipe`.
+* **LLM & AI Ready:** Web Streams are increasingly used by AI/LLM libraries (like Langchain, OpenAI SDK) to handle streaming responses. `hi-stream` makes processing these streams straightforward.
+* **TypeScript First:** Written in TypeScript for strong typing and improved developer experience.
 
-```sh
+## 📦 Installation
+
+Choose your favorite package manager:
+
+```bash
+# npm
 npm install hi-stream
-```
 
-or
-
-```sh
+# yarn
 yarn add hi-stream
+
+# pnpm
+pnpm add hi-stream
 ```
 
-## Usage 📚
+## 📚 Usage Examples
 
-Here are some examples of how to use the provided operators and utilities:
+Get started quickly with these examples:
 
-### Importing the library
+### Importing Operators
 
-```ts
-import { map, flatMap, scan, filter, skip, skipWhile, skipUntil, take, takeWhile, takeUntil, zip, pairwise, fromPromise, toPromise, curry, pipe } from 'hi-stream';
+```typescript
+import {
+  from, // Create streams from iterables, promises, etc.
+  pipe, // Chain operators together
+  map, filter, scan, flatMap, // Common operators
+  take, skip, takeWhile, skipWhile, // Filtering/limiting operators
+  zip, pairwise, // Combination operators
+  toPromise, // Convert stream result back to a Promise
+  curry, // Utility for currying functions (operators are pre-curried)
+  // ... and more!
+} from 'hi-stream';
 ```
 
-### Complete Example with Multiple Operators 💡
+### Basic Transformation
 
-Below is a complete example that demonstrates the usage of multiple operators with `pipe` and `for..await` consumption. This example simulates a real-world stream, such as a tweets stream.
+Let's create a stream from an array, filter it, and map the values.
 
-```ts
-import { from, map, filter, scan, pipe, toPromise } from 'hi-stream';
+```typescript
+import { from, pipe, filter, map } from 'hi-stream';
 
-// Simulate a stream of tweets
+const numbers = [1, 2, 3, 4, 5, 6];
+const numberStream = from(numbers); // Create a ReadableStream
+
+const processedStream = pipe(
+  numberStream,
+  filter(n => n % 2 === 0),    // Keep only even numbers
+  map(n => n * 10)             // Multiply them by 10
+);
+
+for await (const value of processedStream) {
+  console.log(value);
+  // Output:
+  // 20
+  // 40
+  // 60
+}
+```
+
+### Processing a Stream of Objects (e.g., Tweets)
+
+This example demonstrates chaining multiple operators to process a stream resembling real-world data, like tweets.
+
+```typescript
+import { from, pipe, filter, map, scan } from 'hi-stream';
+
+// Simulate a stream of tweet objects
 const tweets = [
   { id: 1, text: 'Hello world', likes: 10 },
   { id: 2, text: 'Hi there', likes: 5 },
@@ -47,21 +95,31 @@ const tweets = [
   { id: 4, text: 'TypeScript is great', likes: 15 },
 ];
 
-const tweetStream = from(tweets);
+const tweetStream = from(tweets); // Create stream from array
 
+// Define the processing pipeline
 const processedTweets = pipe(
   tweetStream,
-  filter(tweet => tweet.likes > 10),
-  map(tweet => ({ ...tweet, text: tweet.text.toUpperCase() })),
-  scan((acc, tweet) => [...acc, tweet], [])
+  filter(tweet => tweet.likes > 10), // Only keep tweets with more than 10 likes
+  map(tweet => ({ ...tweet, text: tweet.text.toUpperCase() })), // Uppercase the text
+  // Accumulate results: scan emits the intermediate accumulated array for each input item
+  scan((accumulator, currentTweet) => [...accumulator, currentTweet], [])
 );
+for await (const chunk of processedTweets) {
+  // scan emits the accumulated array at each step
+  console.log('Current accumulated popular tweets:', chunk);
+}
+console.log('Stream finished.');
 
-(async () => {
-  for await (const chunk of processedTweets) {
-    console.log(chunk);
-  }
-})();
+/* Output:
+Processing tweet stream...
+Current accumulated popular tweets: [ { id: 3, text: 'JAVASCRIPT IS AWESOME', likes: 20 } ]
+Current accumulated popular tweets: [ { id: 3, text: 'JAVASCRIPT IS AWESOME', likes: 20 }, { id: 4, text: 'TYPESCRIPT IS GREAT', likes: 15 } ]
+Stream finished.
+*/
 ```
+
+## Operators
 
 <!-- OPERATORS_BEGIN -->
 ### filter
