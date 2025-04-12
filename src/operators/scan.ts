@@ -7,6 +7,12 @@ import { toPromise } from '../conversions/toPromise';
  * @param fn - The function to apply to each chunk.
  * @param initialValue - The initial value for the accumulator.
  * @returns A function that takes a readable stream and returns a new readable stream with the accumulated result.
+ * 
+ * @example
+ * ```ts
+ * const stream = from([1,2,3])
+ * await pipe(stream, scan((acc,x)=>acc+x,0), toPromise) // Output: [1,3,6]
+ * ```
  */
 export function scan<T, R>(fn: (acc: R, chunk: T) => R, initialValue: R): (readableStream: ReadableStream<T>) => ReadableStream<R> {
   return curry(scanStream)(fn, initialValue);

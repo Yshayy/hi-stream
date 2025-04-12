@@ -6,6 +6,13 @@ import { toPromise } from '../conversions/toPromise';
  * Combines chunks from multiple streams into a single stream.
  * @param streams - The streams to combine.
  * @returns A function that takes a readable stream and returns a new readable stream with the combined chunks.
+ * 
+ * @example
+ * ```ts
+ * const stream1 = from([1,2,3])
+ * const stream2 = from(['a','b','c'])
+ * await pipe(stream1, zip(stream2), toPromise) // Output: [[1,'a'],[2,'b'],[3,'c']]
+ * ```
  */
 export function zip<T1>(stream1: ReadableStream<T1>): <T>(readableStream: ReadableStream<T>) => ReadableStream<[T, T1]>;
 export function zip<T1, T2>(stream1: ReadableStream<T1>, stream2: ReadableStream<T2>): <T>(readableStream: ReadableStream<T>) => ReadableStream<[T, T1, T2]>;

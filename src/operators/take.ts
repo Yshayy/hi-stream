@@ -6,6 +6,12 @@ import { toPromise } from '../conversions/toPromise';
  * Takes a specified number of chunks from the readable stream.
  * @param count - The number of chunks to take.
  * @returns A function that takes a readable stream and returns a new readable stream with the taken chunks.
+ * 
+ * @example
+ * ```ts
+ * const stream = from([1,2,3,4])
+ * await pipe(stream, take(2), toPromise) // Output: [1,2]
+ * ```
  */
 export function take<T>(count: number): (readableStream: ReadableStream<T>) => ReadableStream<T> {
   return curry(takeStream)(count);
