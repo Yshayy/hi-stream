@@ -1,10 +1,18 @@
 import { curry } from '../utils/curry';
+import { from } from '../conversions/from';
+import { toPromise } from '../conversions/toPromise';
 
 /**
  * Applies a given function to each chunk in the readable stream, accumulating the result.
  * @param fn - The function to apply to each chunk.
  * @param initialValue - The initial value for the accumulator.
  * @returns A function that takes a readable stream and returns a new readable stream with the accumulated result.
+ * 
+ * @example
+ * ```ts
+ * const stream = from([1,2,3])
+ * await pipe(stream, scan((acc,x)=>acc+x,0), toPromise) // Output: [1,3,6]
+ * ```
  */
 export function scan<T, R>(fn: (acc: R, chunk: T) => R, initialValue: R): (readableStream: ReadableStream<T>) => ReadableStream<R> {
   return curry(scanStream)(fn, initialValue);
@@ -36,25 +44,9 @@ if (import.meta.vitest) {
 
   describe('scan', () => {
     it('should accumulate values using the provided function and initial value', async () => {
-      const readableStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(1);
-          controller.enqueue(2);
-          controller.enqueue(3);
-          controller.close();
-        }
-      });
-
-      const transformStream = pipe(readableStream, scan((acc: number, x: number) => acc + x, 0));
-
-      const reader = transformStream.getReader();
-      const result = [];
-      let readResult;
-      while (!(readResult = await reader.read()).done) {
-        result.push(readResult.value);
-      }
-
-      expect(result).toEqual([1, 3, 6]);
+      const stream = from([1, 2, 3]);
+      const resultStream = pipe(stream, scan((acc: number, x: number) => acc + x, 0));
+      expect(await toPromise(resultStream)).toEqual([1, 3, 6]);
     });
   });
 }

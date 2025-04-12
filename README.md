@@ -26,309 +26,257 @@ Here are some examples of how to use the provided operators and utilities:
 import { map, flatMap, scan, filter, skip, skipWhile, skipUntil, take, takeWhile, takeUntil, zip, pairwise, fromPromise, toPromise, curry, pipe } from 'hi-stream';
 ```
 
-### Using `map` operator
+<!-- OPERATORS_BEGIN -->
+### filter
 
+**Signature:**
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.close();
-  }
-});
-
-const transformStream = map((x: number) => x * 2);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 2
-});
+export function filter<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T>;
 ```
 
-### Using `flatMap` operator
+**Description:**
+Filters chunks in the readable stream based on a predicate function.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.close();
-  }
-});
-
-const transformStream = flatMap((x: number) => [x, x * 2]);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 1
-});
+```ts
+const stream = from([1,2,3])
+await pipe(stream, filter(x=>x%2===0), toPromise) // Output: [2]
+```
 ```
 
-### Using `scan` operator
+</details>
+
+### flatMap
+
+**Signature:**
+```ts
+export function flatMap<T, R>(fn: (chunk: T) => R[]): (readableStream: ReadableStream<T>) => ReadableStream<R>;
+```
+
+**Description:**
+Applies a given function to each chunk in the readable stream and flattens the result.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.close();
-  }
-});
-
-const transformStream = scan((acc: number, x: number) => acc + x, 0);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 1
-});
+```ts
+const stream = from([1,2,3])
+await pipe(stream, flatMap(x=>[x,x*2]), toPromise) // Output: [1,2,2,4,3,6]
+```
 ```
 
-### Using `filter` operator
+</details>
+
+### map
+
+**Signature:**
+```ts
+export function map<T, R>(fn: (chunk: T) => R): (readableStream: ReadableStream<T>) => ReadableStream<R>;
+```
+
+**Description:**
+Applies a given function to each chunk in the readable stream.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.close();
-  }
-});
-
-const transformStream = filter((x: number) => x % 2 === 0);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 2
-});
+```ts
+const stream = from([1,2,3])
+await pipe(stream, map(x=>x*2), toPromise) // Output: [2,4,6]
+```
 ```
 
-### Using `skip` operator
+</details>
+
+### pairwise
+
+**Signature:**
+```ts
+export function pairwise<T>(): (readableStream: ReadableStream<T>) => ReadableStream<[T, T]>;
+```
+
+**Description:**
+Emits pairs of consecutive chunks from the readable stream.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.enqueue(4);
-    controller.close();
-  }
-});
-
-const transformStream = skip(2);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 3
-});
+```ts
+const stream = from([1,2,3])
+await pipe(stream, pairwise(), toPromise) // Output: [[1,2],[2,3]]
+```
 ```
 
-### Using `skipWhile` operator
+</details>
+
+### scan
+
+**Signature:**
+```ts
+export function scan<T, R>(fn: (acc: R, chunk: T) => R, initialValue: R): (readableStream: ReadableStream<T>) => ReadableStream<R>;
+```
+
+**Description:**
+Applies a given function to each chunk in the readable stream, accumulating the result.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.enqueue(4);
-    controller.close();
-  }
-});
-
-const transformStream = skipWhile((x: number) => x < 3);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 3
-});
+```ts
+const stream = from([1,2,3])
+await pipe(stream, scan((acc,x)=>acc+x,0), toPromise) // Output: [1,3,6]
+```
 ```
 
-### Using `skipUntil` operator
+</details>
+
+### skip
+
+**Signature:**
+```ts
+export function skip<T>(count: number): (readableStream: ReadableStream<T>) => ReadableStream<T>;
+```
+
+**Description:**
+Skips a specified number of chunks in the readable stream.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.enqueue(4);
-    controller.close();
-  }
-});
-
-const transformStream = skipUntil((x: number) => x >= 3);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 3
-});
+```ts
+const stream = from([1,2,3,4])
+await pipe(stream, skip(2), toPromise) // Output: [3,4]
+```
 ```
 
-### Using `take` operator
+</details>
+
+### skipUntil
+
+**Signature:**
+```ts
+export function skipUntil<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T>;
+```
+
+**Description:**
+Skips chunks in the readable stream until a predicate function is true.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.enqueue(4);
-    controller.close();
-  }
-});
-
-const transformStream = take(2);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 1
-});
+```ts
+const stream = from([1,2,3,4])
+await pipe(stream, skipUntil(x=>x>=3), toPromise) // Output: [3,4]
+```
 ```
 
-### Using `takeWhile` operator
+</details>
+
+### skipWhile
+
+**Signature:**
+```ts
+export function skipWhile<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T>;
+```
+
+**Description:**
+Skips chunks in the readable stream while a predicate function is true.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.enqueue(4);
-    controller.close();
-  }
-});
-
-const transformStream = takeWhile((x: number) => x < 3);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 1
-});
+```ts
+const stream = from([1,2,3,4])
+await pipe(stream, skipWhile(x=>x<3), toPromise) // Output: [3,4]
+```
 ```
 
-### Using `takeUntil` operator
+</details>
+
+### take
+
+**Signature:**
+```ts
+export function take<T>(count: number): (readableStream: ReadableStream<T>) => ReadableStream<T>;
+```
+
+**Description:**
+Takes a specified number of chunks from the readable stream.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.enqueue(4);
-    controller.close();
-  }
-});
-
-const transformStream = takeUntil((x: number) => x >= 3);
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // 1
-});
+```ts
+const stream = from([1,2,3,4])
+await pipe(stream, take(2), toPromise) // Output: [1,2]
+```
 ```
 
-### Using `zip` operator
+</details>
+
+### takeUntil
+
+**Signature:**
+```ts
+export function takeUntil<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T>;
+```
+
+**Description:**
+Takes chunks from the readable stream until a predicate function is true.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream1 = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.close();
-  }
-});
-
-const readableStream2 = new ReadableStream({
-  start(controller) {
-    controller.enqueue('a');
-    controller.enqueue('b');
-    controller.enqueue('c');
-    controller.close();
-  }
-});
-
-const transformStream = zip(readableStream2);
-
-const reader = transformStream(readableStream1).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // [1, 'a']
-});
+```ts
+const stream = from([1,2,3,4])
+await pipe(stream, takeUntil(x=>x>=3), toPromise) // Output: [1,2]
+```
 ```
 
-### Using `pairwise` operator
+</details>
+
+### takeWhile
+
+**Signature:**
+```ts
+export function takeWhile<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T>;
+```
+
+**Description:**
+Takes chunks from the readable stream while a predicate function is true.
+
+<details><summary>Example</summary>
 
 ```ts
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.close();
-  }
-});
-
-const transformStream = pairwise();
-
-const reader = transformStream(readableStream).getReader();
-reader.read().then(({ value }) => {
-  console.log(value); // [1, 2]
-});
+```ts
+const stream = from([1,2,3,4])
+await pipe(stream, takeWhile(x=>x<3), toPromise) // Output: [1,2]
+```
 ```
 
-### Using `fromPromise` and `toPromise` functions
+</details>
+
+### zipStreams
+
+**Signature:**
+```ts
+export function zipStreams<T>(streams: ReadableStream<T>[], readableStream: ReadableStream<T>): ReadableStream<T[]>;
+```
+
+**Description:**
+Combines chunks from multiple streams into a single stream.
+
+<details><summary>Example</summary>
 
 ```ts
-const promise = Promise.resolve(42);
-const readableStream = fromPromise(promise);
-
-toPromise(readableStream).then(value => {
-  console.log(value); // 42
-});
-```
-
-### Using `curry` and `pipe` utilities
-
 ```ts
-const add = (a: number, b: number) => a + b;
-const curriedAdd = curry(add);
-
-console.log(curriedAdd(1)(2)); // 3
-
-const multiply = (a: number, b: number) => a * b;
-const addAndMultiply = pipe(curriedAdd(1), multiply(2));
-
-console.log(addAndMultiply(3)); // 8
+const stream1 = from([1,2,3])
+const stream2 = from(['a','b','c'])
+await pipe(stream1, zip(stream2), toPromise) // Output: [[1,'a'],[2,'b'],[3,'c']]
+```
 ```
 
-### Using async iterators for consumption of readable streams
-
-```ts
-async function consumeStream<T>(readableStream: ReadableStream<T>) {
-  const reader = readableStream.getReader();
-  const result = [];
-  let readResult;
-  while (!(readResult = await reader.read()).done) {
-    result.push(readResult.value);
-  }
-  return result;
-}
-
-const readableStream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(1);
-    controller.enqueue(2);
-    controller.enqueue(3);
-    controller.close();
-  }
-});
-
-consumeStream(readableStream).then(result => {
-  console.log(result); // [1, 2, 3]
-});
-```
+</details>
+<!-- OPERATORS_END -->

@@ -1,9 +1,17 @@
 import { curry } from '../utils/curry';
+import { from } from '../conversions/from';
+import { toPromise } from '../conversions/toPromise';
 
 /**
  * Filters chunks in the readable stream based on a predicate function.
  * @param predicate - The predicate function to apply to each chunk.
  * @returns A function that takes a readable stream and returns a new readable stream with the filtered chunks.
+ * 
+ * @example
+ * ```ts
+ * const stream = from([1,2,3])
+ * await pipe(stream, filter(x=>x%2===0), toPromise) // Output: [2]
+ * ```
  */
 export function filter<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T> {
   return curry(filterStream)(predicate);
@@ -34,25 +42,9 @@ if (import.meta.vitest) {
 
   describe('filter', () => {
     it('should filter chunks using the provided predicate function', async () => {
-      const readableStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(1);
-          controller.enqueue(2);
-          controller.enqueue(3);
-          controller.close();
-        }
-      });
-
-      const transformStream = pipe(readableStream, filter((x: number) => x % 2 === 0));
-
-      const reader = transformStream.getReader();
-      const result = [];
-      let readResult;
-      while (!(readResult = await reader.read()).done) {
-        result.push(readResult.value);
-      }
-
-      expect(result).toEqual([2]);
+      const stream = from([1, 2, 3]);
+      const resultStream = pipe(stream, filter(x => x % 2 === 0));  
+      expect(await toPromise(resultStream)).toEqual([2]);
     });
   });
 }

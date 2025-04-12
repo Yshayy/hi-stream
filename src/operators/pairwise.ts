@@ -1,6 +1,14 @@
+import { toPromise } from '../conversions/toPromise';
+
 /**
  * Emits pairs of consecutive chunks from the readable stream.
  * @returns A function that takes a readable stream and returns a new readable stream with pairs of consecutive chunks.
+ * 
+ * @example
+ * ```ts
+ * const stream = from([1,2,3])
+ * await pipe(stream, pairwise(), toPromise) // Output: [[1,2],[2,3]]
+ * ```
  */
 export function pairwise<T>(): (readableStream: ReadableStream<T>) => ReadableStream<[T, T]> {
   return (readableStream: ReadableStream<T>) => {
@@ -22,67 +30,25 @@ export function pairwise<T>(): (readableStream: ReadableStream<T>) => ReadableSt
 if (import.meta.vitest) {
   const { describe, it, expect } = import.meta.vitest;
   const { pipe } = await import('../utils/pipe');
+  const { from } = await import('../conversions/from');
 
   describe('pairwise', () => {
     it('should emit pairs of consecutive chunks', async () => {
-      const readableStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(1);
-          controller.enqueue(2);
-          controller.enqueue(3);
-          controller.close();
-        }
-      });
-
-      const transformStream = pipe(readableStream, pairwise());
-
-      const reader = transformStream.getReader();
-      const result = [];
-      let readResult;
-      while (!(readResult = await reader.read()).done) {
-        result.push(readResult.value);
-      }
-
-      expect(result).toEqual([[1, 2], [2, 3]]);
+      const stream = from([1, 2, 3]);
+      const resultStream = pipe(stream, pairwise());
+      expect(await toPromise(resultStream)).toEqual([[1, 2], [2, 3]]);
     });
 
     it('should handle a stream with a single chunk', async () => {
-      const readableStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(42);
-          controller.close();
-        }
-      });
-
-      const transformStream = pipe(readableStream, pairwise());
-
-      const reader = transformStream.getReader();
-      const result = [];
-      let readResult;
-      while (!(readResult = await reader.read()).done) {
-        result.push(readResult.value);
-      }
-
-      expect(result).toEqual([]);
+      const stream = from([42]);
+      const resultStream = pipe(stream, pairwise());
+      expect(await toPromise(resultStream)).toEqual([]);
     });
 
     it('should handle an empty stream', async () => {
-      const readableStream = new ReadableStream({
-        start(controller) {
-          controller.close();
-        }
-      });
-
-      const transformStream = pipe(readableStream, pairwise());
-
-      const reader = transformStream.getReader();
-      const result = [];
-      let readResult;
-      while (!(readResult = await reader.read()).done) {
-        result.push(readResult.value);
-      }
-
-      expect(result).toEqual([]);
+      const stream = from([]);
+      const resultStream = pipe(stream, pairwise());
+      expect(await toPromise(resultStream)).toEqual([]);
     });
   });
 }

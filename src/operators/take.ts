@@ -1,9 +1,17 @@
 import { curry } from '../utils/curry';
+import { from } from '../conversions/from';
+import { toPromise } from '../conversions/toPromise';
 
 /**
  * Takes a specified number of chunks from the readable stream.
  * @param count - The number of chunks to take.
  * @returns A function that takes a readable stream and returns a new readable stream with the taken chunks.
+ * 
+ * @example
+ * ```ts
+ * const stream = from([1,2,3,4])
+ * await pipe(stream, take(2), toPromise) // Output: [1,2]
+ * ```
  */
 export function take<T>(count: number): (readableStream: ReadableStream<T>) => ReadableStream<T> {
   return curry(takeStream)(count);
@@ -39,26 +47,9 @@ if (import.meta.vitest) {
 
   describe('take', () => {
     it('should take the specified number of chunks', async () => {
-      const readableStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(1);
-          controller.enqueue(2);
-          controller.enqueue(3);
-          controller.enqueue(4);
-          controller.close();
-        }
-      });
-
-      const transformStream = pipe(readableStream, take(2));
-
-      const reader = transformStream.getReader();
-      const result = [];
-      let readResult;
-      while (!(readResult = await reader.read()).done) {
-        result.push(readResult.value);
-      }
-
-      expect(result).toEqual([1, 2]);
+      const stream = from([1, 2, 3, 4]);
+      const resultStream = pipe(stream, take(2));
+      expect(await toPromise(resultStream)).toEqual([1, 2]);
     });
   });
 }
