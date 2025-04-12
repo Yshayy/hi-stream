@@ -386,11 +386,9 @@ Combines chunks from multiple streams into a single stream.
 <details><summary>Example</summary>
 
 ```ts
-```ts
 const stream1 = from([1,2,3])
 const stream2 = from(['a','b','c'])
 await pipe(stream1, zip(stream2), toPromise) // Output: [[1,'a'],[2,'b'],[3,'c']]
-```
 ```
 
 </details>
