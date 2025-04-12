@@ -1,8 +1,14 @@
-# hi-stream
+# hi-stream 🚀
 
-This library provides higher-order utility functions for working with web streams' readable streams. It offers an Rx/Ix-like API with operators such as `map`, `flatMap`, `scan`, and more. The library leverages transform streams internally for operators and integrates with promises and async iterables. It supports tacit style programming by currying all operators and provides utilities for currying and piping functions.
+Welcome to **hi-stream**! This library provides higher-order utility functions for working with web streams' readable streams. It offers an Rx/Ix-like API with operators such as `map`, `flatMap`, `scan`, and more. The library leverages transform streams internally for operators and integrates with promises and async iterables. It supports tacit style programming by currying all operators and provides utilities for currying and piping functions.
 
-## Installation
+## Benefits of Using This Library 🌟
+
+- **Target Modern Environments**: This library is designed to work seamlessly with modern environments such as WinterCG, Node.js, Deno, Bun, and browsers.
+- **Native Support for Async Iterators**: Webstreams work natively with async iterators and `for...await` syntax, making it easy and idiomatic to consume streams.
+- **Ease of Use with LLM Libraries**: This library is easy to work with LLM libraries that have adopted webstreams for representing AI streams.
+
+## Installation 📦
 
 To install the library, use npm or yarn:
 
@@ -16,7 +22,7 @@ or
 yarn add hi-stream
 ```
 
-## Usage
+## Usage 📚
 
 Here are some examples of how to use the provided operators and utilities:
 
@@ -24,6 +30,37 @@ Here are some examples of how to use the provided operators and utilities:
 
 ```ts
 import { map, flatMap, scan, filter, skip, skipWhile, skipUntil, take, takeWhile, takeUntil, zip, pairwise, fromPromise, toPromise, curry, pipe } from 'hi-stream';
+```
+
+### Complete Example with Multiple Operators 💡
+
+Below is a complete example that demonstrates the usage of multiple operators with `pipe` and `for..await` consumption. This example simulates a real-world stream, such as a tweets stream.
+
+```ts
+import { from, map, filter, scan, pipe, toPromise } from 'hi-stream';
+
+// Simulate a stream of tweets
+const tweets = [
+  { id: 1, text: 'Hello world', likes: 10 },
+  { id: 2, text: 'Hi there', likes: 5 },
+  { id: 3, text: 'JavaScript is awesome', likes: 20 },
+  { id: 4, text: 'TypeScript is great', likes: 15 },
+];
+
+const tweetStream = from(tweets);
+
+const processedTweets = pipe(
+  tweetStream,
+  filter(tweet => tweet.likes > 10),
+  map(tweet => ({ ...tweet, text: tweet.text.toUpperCase() })),
+  scan((acc, tweet) => [...acc, tweet], [])
+);
+
+(async () => {
+  for await (const chunk of processedTweets) {
+    console.log(chunk);
+  }
+})();
 ```
 
 <!-- OPERATORS_BEGIN -->
@@ -261,3 +298,6 @@ await pipe(stream1, zip(stream2), toPromise) // Output: [[1,'a'],[2,'b'],[3,'c']
 </details>
 <!-- OPERATORS_END -->
 
+## Project Status and Contributions 🚧
+
+This project is in its early stages but is functional and working. It has been generated completely by the Copilot workspace AI agent. Contributions are welcome, and you can open issues for any bugs or feature requests. The implementation is driven and maintained by AI with human reviews.
