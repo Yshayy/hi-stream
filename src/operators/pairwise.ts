@@ -3,6 +3,12 @@ import { toPromise } from '../conversions/toPromise';
 /**
  * Emits pairs of consecutive chunks from the readable stream.
  * @returns A function that takes a readable stream and returns a new readable stream with pairs of consecutive chunks.
+ * 
+ * @example
+ * ```ts
+ * const stream = from([1,2,3])
+ * await pipe(stream, pairwise(), toPromise) // Output: [[1,2],[2,3]]
+ * ```
  */
 export function pairwise<T>(): (readableStream: ReadableStream<T>) => ReadableStream<[T, T]> {
   return (readableStream: ReadableStream<T>) => {

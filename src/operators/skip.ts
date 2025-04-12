@@ -6,6 +6,12 @@ import { toPromise } from '../conversions/toPromise';
  * Skips a specified number of chunks in the readable stream.
  * @param count - The number of chunks to skip.
  * @returns A function that takes a readable stream and returns a new readable stream with the skipped chunks.
+ * 
+ * @example
+ * ```ts
+ * const stream = from([1,2,3,4])
+ * await pipe(stream, skip(2), toPromise) // Output: [3,4]
+ * ```
  */
 export function skip<T>(count: number): (readableStream: ReadableStream<T>) => ReadableStream<T> {
   return curry(skipStream)(count);
