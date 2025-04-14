@@ -12,7 +12,7 @@ import { toPromise } from '../conversions/toPromise';
  * await pipe(stream, map(x=>x*2), toPromise) // Output: [2,4,6]
  * 
  */
-export function map<T, R>(fn: (chunk: T) => R): (readableStream: ReadableStream<T>) => ReadableStream<R> {
+export function map<T, R>(fn: (chunk: T) => R | Promise<R>): (readableStream: ReadableStream<T>) => ReadableStream<R> {
   return curry(mapStream)(fn);
 }
 
@@ -22,10 +22,10 @@ export function map<T, R>(fn: (chunk: T) => R): (readableStream: ReadableStream<
  * @param readableStream - The readable stream to transform.
  * @returns A new readable stream with the transformed chunks.
  */
-export function mapStream<T, R>(fn: (chunk: T) => R, readableStream: ReadableStream<T>): ReadableStream<R> {
+export function mapStream<T, R>(fn: (chunk: T) => R | Promise<R>, readableStream: ReadableStream<T>): ReadableStream<R> {
   const transformStream = new TransformStream({
-    transform(chunk, controller) {
-      const result = fn(chunk);
+    async transform(chunk, controller) {
+      const result = await fn(chunk);
       controller.enqueue(result);
     }
   });
@@ -42,6 +42,12 @@ if (import.meta.vitest) {
     it('should transform each chunk using the provided function', async () => {
       const stream = from([1, 2, 3]);
       const resultStream = pipe(stream, map((x: number) => x * 2));
+      expect(await toPromise(resultStream)).toEqual([2, 4, 6]);
+    });
+
+    it('should handle async transform functions', async () => {
+      const stream = from([1, 2, 3]);
+      const resultStream = pipe(stream, map(async (x: number) => x * 2));
       expect(await toPromise(resultStream)).toEqual([2, 4, 6]);
     });
   });
