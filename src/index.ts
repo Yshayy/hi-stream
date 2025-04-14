@@ -17,3 +17,4 @@ export * from './operators/pairwise';
 export * from './conversions/from';
 export * from './operators/buffer';
 export * from './operators/bufferCount';
+export * from './operators/merge';
