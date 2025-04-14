@@ -19,18 +19,14 @@
  * }
  */
 export function merge<T>(streams: ReadableStream<T>[]) {
-  let readers = streams.map(stream => stream.getReader())
-  const readersRead = new WeakMap<ReadableStreamDefaultReader<T>, Promise<{done: boolean, value: T | undefined}>>()
+  let readers = streams.map((stream,i) => stream.getReader())
+  const readersRead = new WeakMap<ReadableStreamDefaultReader<T>, Promise<{done: boolean, value: T | undefined, reader: ReadableStreamDefaultReader<T>}>>()
   async function read(reader: ReadableStreamDefaultReader<T>){
     if (readersRead.has(reader)) {
       return readersRead.get(reader)!
     }
     const promise = reader.read().then(({done, value}) => {
-        readersRead.delete(reader)
-        if (done) {
-          readers = readers.filter(r => r !== reader)
-        }
-        return {done, value}
+        return {done, value, reader}
     })
     readersRead.set(reader, promise)
     return promise
@@ -42,10 +38,13 @@ export function merge<T>(streams: ReadableStream<T>[]) {
         return
       }
       while (readers.length > 0){
-        const {value, done} = await Promise.race(readers.map(read))
+        const {value, done, reader} = await Promise.race(readers.map(read))
         if (!done){
           controller.enqueue(value)
+          readersRead.delete(reader)
           return;
+        } else {
+          readers = readers.filter(r => r !== reader)
         }
       }
       controller.close()
@@ -68,6 +67,7 @@ if (import.meta.vitest) {
       const stream2 = from(['a', 'b', 'c']);
       const mergedStream = merge([stream1, stream2]);
       const result = await toPromise(mergedStream);
+      console.log(result);
       expect(result).toEqual(expect.arrayContaining([1, 'a', 2, 'b', 3, 'c']));
     });
 
