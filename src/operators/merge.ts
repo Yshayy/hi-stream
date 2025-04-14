@@ -18,7 +18,7 @@
  *   // 'c'
  * }
  */
-export const merge = <T>(streams: ReadableStream<T>[]) => {
+export function merge<T>(streams: ReadableStream<T>[]) {
   let readers = streams.map(stream => stream.getReader())
   const readersRead = new WeakMap<ReadableStreamDefaultReader<T>, Promise<{done: boolean, value: T | undefined}>>()
   async function read(reader: ReadableStreamDefaultReader<T>){

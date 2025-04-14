@@ -166,7 +166,7 @@ await toPromise(resultStream); // Output: [[1, 2], [3, 4], [5]]
 
 **Signature:**
 ```ts
-export function filter<T>(predicate: (chunk: T) => boolean): (readableStream: ReadableStream<T>) => ReadableStream<T>;
+export function filter<T>(predicate: (chunk: T) => boolean | Promise<boolean>): (readableStream: ReadableStream<T>) => ReadableStream<T>;
 ```
 
 **Description:**
@@ -204,7 +204,7 @@ await pipe(stream, flatMap(x=>[x,x*2]), toPromise) // Output: [1,2,2,4,3,6]
 
 **Signature:**
 ```ts
-export function map<T, R>(fn: (chunk: T) => R): (readableStream: ReadableStream<T>) => ReadableStream<R>;
+export function map<T, R>(fn: (chunk: T) => R | Promise<R>): (readableStream: ReadableStream<T>) => ReadableStream<R>;
 ```
 
 **Description:**
@@ -215,6 +215,36 @@ Applies a given function to each chunk in the readable stream.
 ```ts
 const stream = from([1,2,3])
 await pipe(stream, map(x=>x*2), toPromise) // Output: [2,4,6]
+```
+
+</details>
+
+### merge
+
+**Signature:**
+```ts
+export function merge<T>(streams: ReadableStream<T>[]);
+```
+
+**Description:**
+Merges multiple readable streams into a single readable stream.
+
+<details><summary>Example</summary>
+
+```ts
+const stream1 = from([1, 2, 3]);
+const stream2 = from(['a', 'b', 'c']);
+const mergedStream = merge([stream1, stream2]);
+for await (const chunk of mergedStream) {
+  console.log(chunk);
+  // Output:
+  // 1
+  // 'a'
+  // 2
+  // 'b'
+  // 3
+  // 'c'
+}
 ```
 
 </details>
