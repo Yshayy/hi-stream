@@ -1,3 +1,4 @@
+import { pipe } from '../utils/pipe';
 import { buffer } from './buffer';
 
 /**
@@ -13,10 +14,10 @@ import { buffer } from './buffer';
 export function bufferCount<T>(count: number): (readableStream: ReadableStream<T>) => ReadableStream<T[]> {
   return (readableStream: ReadableStream<T>) => {
     let itemCount = 0;
-    return buffer(() => {
+    return pipe(readableStream, buffer(() => {
       itemCount++;
       return itemCount % count === 0;
-    })(readableStream);
+    }));
   };
 }
 
